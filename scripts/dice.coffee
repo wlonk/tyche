@@ -3,9 +3,9 @@ module.exports = (robot) ->
     dice = parseInt msg.match[1]
     sides = parseInt msg.match[2]
     answer = if sides < 1
-      "I don't know how to roll a zero-sided die."
+      "What is that, a die for ants? I won't roll it."
     else if dice > 100
-      "I'm not going to roll more than 100 dice for you."
+      "Really? I'm not going to roll more than 100 dice for you."
     else
       report roll dice, sides
     msg.reply answer
