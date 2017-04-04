@@ -1,3 +1,5 @@
+'use strict';
+
 module.exports = function(robot) {
   robot.respond(/roll (\d+)d(\d+|{[^}]+})/i, function(msg) {
     let answer;
