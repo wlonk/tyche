@@ -6,8 +6,11 @@
 //meaning that rote has to be counted separately AFTER accounting for dice explosion
 //All 10s explode
 
+const SUCCESS_THRESHOLD = 8;
+const DEFAULT_EXPLODE_TARGET = 10;
+
 module.exports = function(robot) {
-	robot.respond(/roll (\d+)e(\d+)([r])/i, function (msg) {
+	robot.respond(/roll (\d+)((?:e(\d+))?)(r?)/i, function (msg) {
 		let answer;
 		let pool = parseInt(msg.match[1]);
     	let explode = parseInt(msg.match[2]);
@@ -24,19 +27,19 @@ module.exports = function(robot) {
 
 function roll() {
 	let result = Math.floor(Math.random()*10) + 1;
-	return(result);
+	return result ;
 }
 
 
 function rollMany(dice){
 	let results = [];
 	for (var i = 0; i < dice; i++) {
-		results[i] = roll();
+		results.push(roll());
 	}
 	results.sort(function(a, b) {
 		return a - b;
 	});
-	return(results);
+	return results;
 }
 
 
@@ -48,7 +51,7 @@ function explode(results, target) {
 			myArray.push(roll());
 		}
 	}
-	return(myArray);
+	return myArray;
 }
 
 
@@ -56,10 +59,10 @@ function rote(results) {
 	let reroll = results.slice(0);
 	for (var i = 0; i < reroll.length; i++) {
 		if (reroll[i] < 8){
-			reroll[i] = roll();
+			reroll.push(roll());
 		}
 	}
-	return(reroll);
+	return reroll;
 }
 
 
@@ -67,19 +70,19 @@ function report(rollarray) {
 	if (array != null) {
 		switch (results.length) {
 			case 0:
-				return "I didn't roll any dice"
+			return "I didn't roll any dice"
 			case 1:
-				return `I rolled a ${results[0]}.`;
+			return `I rolled a ${results[0]}.`;
 			default: 
-				let finalComma = (results.length > 2) ? "," : "";
-        		let last = results.pop();
-        		let successes = 0;
-        		for (var i = 0; i < rollarray.length; i++) {
-        			if (rollarray[i] > 8) {
-        				successes++;
-        			}
-        		}
-        		return `I rolled ${results.join(", ")}${finalComma} and ${last} making ${successes} hits.`;
+			let finalComma = (results.length > 2) ? "," : "";
+    		let last = results.pop();
+    		let successes = 0;
+    		for (var i = 0; i < rollarray.length; i++) {
+    			if (rollarray[i] > 8) {
+    				successes++;
+    			}
+    		}
+        	return `I rolled ${results.join(", ")}${finalComma} and ${last} making ${successes} hits.`;
 		}
 	}
 }
