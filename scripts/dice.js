@@ -1,28 +1,16 @@
 'use strict';
 
 module.exports = function(robot) {
-  robot.respond(/roll (\d+)d(\d+|{[^}]+})/i, function(msg) {
+  robot.respond(/roll (\d+)d(\d+)/i, function(msg) {
     let answer;
     let dice = parseInt(msg.match[1]);
     let sides = parseInt(msg.match[2]);
-    if (isNaN(sides)) {
-      let group = msg.match[2];
-      let elements = group.slice(1, +group.length - 2 + 1 || undefined).split(",");
-      if (elements.length < 1) {
-        answer = "Oh, c'mon!"
-      } else if (dice > 100) {
-        answer = "Really? I'm not going to roll more than 100 dice for you."
-      } else {
-        answer = getElements(dice, elements);
-      }
+    if (sides < 1) {
+      answer = "What is that, a die for ants? I won't roll it.";
+    } else if (dice > 100) {
+      answer = "Really? I'm not going to roll more than 100 dice for you."
     } else {
-      if (sides < 1) {
-        answer = "What is that, a die for ants? I won't roll it.";
-      } else if (dice > 100) {
-        answer = "Really? I'm not going to roll more than 100 dice for you."
-      } else {
-        answer = report(roll(dice, sides));
-      }
+      answer = report(roll(dice, sides));
     }
     msg.reply(answer);
   });
