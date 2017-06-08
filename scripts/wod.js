@@ -5,23 +5,34 @@
 //notably, those rerolled dice cannot explode, and failed exploding dice from qualities can't either
 //meaning that rote has to be counted separately AFTER accounting for dice explosion
 //All 10s explode
+//Okay new idea, rote just adds some more dice that are checked for success at the report, 
+//but not checked by explode or anything. 
 
 const SUCCESS_THRESHOLD = 8;
 const DEFAULT_EXPLODE_TARGET = 10;
 
 module.exports = function(robot) {
-	robot.respond(/roll (\d+)((?:e(\d+))?)(r?)/i, function (msg) {
+	robot.respond(/roll (\d+)(?:e(\d+))?(r?)/i, function (msg) {
 		let answer;
 		let pool = parseInt(msg.match[1]);
-    	let explode = parseInt(msg.match[2]);
-    	let rote = parseInt(msg.match[3]);
-    	if (explode == NaN) {
-    		//TODO why NaN?
-    		//TODO test regex
-    		//TODO fill out rest of msg.reply
-    		//TODO bad input cases
-    	}
-	}
+  	let explode_target = parseInt(msg.match[2]) || DEFAULT_EXPLODE_TARGET;
+  	let is_rote = Boolean(msg.match[3]);
+  	if (pool < 1) {
+  		answer = 'That is too few dice, my human';
+  	} else if (pool > 100){
+  		answer = 'That is too many dice, my human';
+  	} else if (explode_target < 8) {
+  		answer = 'That is an invalid explode target, human';
+  	} else if (is_rote) {
+  		let initial_roll = rote(rollMany(pool));
+  		let explode_allowed = (explode(rollMany(pool), explode_target));
+  		Array.prototype.push.apply(explode_allowed, initial_roll);
+  		answer = report(explode_allowed);
+  	} else {
+  		answer = report(explode(rollMany(pool), explode_target));
+  	}
+  	msg.reply(answer);
+	});
 }
 
 
@@ -45,7 +56,6 @@ function rollMany(dice){
 
 function explode(results, target) {
 	let myArray = results.slice(0);
-	var targetNumber = target;
 	for (var num of myArray) {
 		if (num >= target){
 			myArray.push(roll());
@@ -57,32 +67,33 @@ function explode(results, target) {
 
 function rote(results) {
 	let reroll = results.slice(0);
+	let noExplodeyDice = [];
 	for (var i = 0; i < reroll.length; i++) {
 		if (reroll[i] < 8){
-			reroll.push(roll());
+			noExplodeyDice.push(roll()); //do we want push here, or assignment at [i]?
 		}
 	}
-	return reroll;
+	return noExplodeyDice;
 }
 
 
-function report(rollarray) {
-	if (array != null) {
+function report(results) {
+	if (results != null) {
 		switch (results.length) {
 			case 0:
 			return "I didn't roll any dice"
 			case 1:
 			return `I rolled a ${results[0]}.`;
 			default: 
-			let finalComma = (results.length > 2) ? "," : "";
-    		let last = results.pop();
-    		let successes = 0;
-    		for (var i = 0; i < rollarray.length; i++) {
-    			if (rollarray[i] > 8) {
-    				successes++;
-    			}
-    		}
-        	return `I rolled ${results.join(", ")}${finalComma} and ${last} making ${successes} hits.`;
+  		let successes = 0;
+  		for (var i = 0; i < results.length; i++) {
+  			if (results[i] >= SUCCESS_THRESHOLD) {
+  				successes++;
+  			}
+  		}
+  		let last = results.pop();
+  		let finalComma = (results.length > 2) ? "," : "";
+      return `I rolled ${results.join(", ")}${finalComma} and ${last} making ${successes} hits.`;
 		}
 	}
 }
