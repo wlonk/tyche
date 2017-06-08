@@ -17,7 +17,7 @@ module.exports = function(robot) {
 };
 
 
-var report = function(results) {
+let report = function(results) {
   if (results != null) {
     switch (results.length) {
       case 0:
@@ -34,22 +34,11 @@ var report = function(results) {
 };
 
 
-var getElements = function(dice, elements) {
-  let results = (Array.from(roll(dice, elements.length)).map((i) => elements[i - 1]));
-  let finalComma = (results.length > 2) ? "," : "";
-  let last = results.pop();
-  console.log(results);
-  if (results.length > 0) {
-    return `I rolled ${results.join(", ")}${finalComma} and ${last}.`;
-  } else {
-    return `I rolled ${last}.`;
-  }
-};
+let roll = (dice, sides) => __range__(0, dice, false).map((i) => rollOne(sides));
 
 
-var roll = (dice, sides) => __range__(0, dice, false).map((i) => rollOne(sides));
+let rollOne = (sides) => 1 + Math.floor(Math.random() * sides);
 
-var rollOne = (sides) => 1 + Math.floor(Math.random() * sides);
 
 function __range__(left, right, inclusive) {
   let range = [];
