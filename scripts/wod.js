@@ -13,13 +13,24 @@ module.exports = function(robot) {
 			answer = 'That is too few dice, my human';
 		} else if (pool > 100){
 			answer = 'That is too many dice, my human';
-		} else if (explode_target < 8) {
+		} else if (explode_target < 8 || explode_target > 10) {
 			answer = 'That is an invalid explode target, human';
 		} else if (is_rote) {
-			let initial_roll = rote(rollMany(pool));
-			let explode_allowed = (explode(rollMany(pool), explode_target));
-			Array.prototype.push.apply(explode_allowed, initial_roll);
-			answer = report(explode_allowed);
+			let initial_roll = rollMany(pool);
+			let success_pool = [];
+			let failure_pool = [];
+			let combined_results = [];
+			for (var i = 0; i < initial_roll.length; i++) {
+				if (initial_roll[i] >= SUCCESS_THRESHOLD) {
+					success_pool.push(initial_roll[i]);
+				} else if (initial_roll[i] < SUCCESS_THRESHOLD) {
+					failure_pool.push(initial_roll[i]);
+				}
+			}
+			success_pool = explode(success_pool, explode_target);
+			failure_pool = rote(failure_pool);
+			combined_results = failure_pool.concat(success_pool);
+			answer = report(combined_results);
 		} else {
 			answer = report(explode(rollMany(pool), explode_target));
 		}
@@ -61,7 +72,7 @@ function rote(results) {
 	let reroll = results.slice(0);
 	let noExplodeyDice = [];
 	for (var i = 0; i < reroll.length; i++) {
-		if (reroll[i] < 8){
+		if (reroll[i] < SUCCESS_THRESHOLD){
 			noExplodeyDice.push(roll());
 		}
 	}
@@ -75,7 +86,12 @@ function report(results) {
 			case 0:
 			return "I didn't roll any dice"
 			case 1:
-			return `I rolled a ${results[0]}.`;
+			let hits = 0
+			if (results[0] > SUCCESS_THRESHOLD) {
+				return `I rolled a ${results[0]}, making 1 hit.`;
+			} else {
+			return `I rolled a ${results[0]}, for no hits.`;
+			}
 			default: 
 			let successes = 0;
 			for (var i = 0; i < results.length; i++) {
