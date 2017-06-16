@@ -58,13 +58,13 @@ function rollMany(dice){
 
 
 function explode(results, target) {
-	let myArray = results.slice(0);
-	for (var num of myArray) {
+	let explode_pool = results.slice(0);
+	for (var num of explode_pool) {
 		if (num >= target){
-			myArray.push(roll());
+			explode_pool.push(roll());
 		}
 	}
-	return myArray;
+	return explode_pool;
 }
 
 
