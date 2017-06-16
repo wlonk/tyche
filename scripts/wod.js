@@ -13,7 +13,7 @@ module.exports = function(robot) {
 			answer = 'That is too few dice, my human';
 		} else if (pool > 100){
 			answer = 'That is too many dice, my human';
-		} else if (explode_target < 8 || explode_target > 10) {
+		} else if (explode_target < SUCCESS_THRESHOLD || explode_target > DEFAULT_EXPLODE_TARGET) {
 			answer = 'That is an invalid explode target, human';
 		} else if (is_rote) {
 			let initial_roll = rollMany(pool);
