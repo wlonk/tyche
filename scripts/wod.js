@@ -4,11 +4,15 @@ const SUCCESS_THRESHOLD = 8;
 const DEFAULT_EXPLODE_TARGET = 10;
 
 module.exports = function(robot) {
-	robot.respond(/roll (\d+)(?:e(\d+))?(r?)/i, function (msg) {
+	robot.respond(/roll (\d+)(d?)(?:e(\d+))?(r?)/i, function (msg) {
 		let answer;
 		let pool = parseInt(msg.match[1]);
-		let explode_target = parseInt(msg.match[2]) || DEFAULT_EXPLODE_TARGET;
-		let is_rote = Boolean(msg.match[3]);
+		let conflict = Boolean(msg.match[2]);
+		let explode_target = parseInt(msg.match[3]) || DEFAULT_EXPLODE_TARGET;
+		let is_rote = Boolean(msg.match[4]);
+		if (conflict) {
+			return
+		}
 		if (pool < 1) {
 			answer = 'That is too few dice, my human';
 		} else if (pool > 100){
