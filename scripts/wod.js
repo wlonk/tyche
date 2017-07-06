@@ -11,34 +11,32 @@ module.exports = function(robot) {
 		let explode_target = parseInt(msg.match[3]) || DEFAULT_EXPLODE_TARGET;
 		let is_rote = Boolean(msg.match[4]);
 		if (conflict) {
-			//this is to prevent conflict with the main dice roller, otherwise two sets are rolled
 			return
-		} else {
-			if (pool < 1) {
-				answer = 'That is too few dice, my human';
-			} else if (pool > 100){
-				answer = 'That is too many dice, my human';
-			} else if (explode_target < SUCCESS_THRESHOLD || explode_target > DEFAULT_EXPLODE_TARGET) {
-				answer = 'That is an invalid explode target, human';
-			} else if (is_rote) {
-				let initial_roll = rollMany(pool);
-				let success_pool = [];
-				let failure_pool = [];
-				let combined_results = [];
-				for (var i = 0; i < initial_roll.length; i++) {
-					if (initial_roll[i] >= SUCCESS_THRESHOLD) {
-						success_pool.push(initial_roll[i]);
-					} else if (initial_roll[i] < SUCCESS_THRESHOLD) {
-						failure_pool.push(initial_roll[i]);
-					}
+		}
+		if (pool < 1) {
+			answer = 'That is too few dice, my human';
+		} else if (pool > 100){
+			answer = 'That is too many dice, my human';
+		} else if (explode_target < SUCCESS_THRESHOLD || explode_target > DEFAULT_EXPLODE_TARGET) {
+			answer = 'That is an invalid explode target, human';
+		} else if (is_rote) {
+			let initial_roll = rollMany(pool);
+			let success_pool = [];
+			let failure_pool = [];
+			let combined_results = [];
+			for (var i = 0; i < initial_roll.length; i++) {
+				if (initial_roll[i] >= SUCCESS_THRESHOLD) {
+					success_pool.push(initial_roll[i]);
+				} else if (initial_roll[i] < SUCCESS_THRESHOLD) {
+					failure_pool.push(initial_roll[i]);
 				}
-				success_pool = explode(success_pool, explode_target);
-				failure_pool = rote(failure_pool);
-				combined_results = failure_pool.concat(success_pool);
-				answer = report(combined_results);
-			} else {
-				answer = report(explode(rollMany(pool), explode_target));
 			}
+			success_pool = explode(success_pool, explode_target);
+			failure_pool = rote(failure_pool);
+			combined_results = failure_pool.concat(success_pool);
+			answer = report(combined_results);
+		} else {
+			answer = report(explode(rollMany(pool), explode_target));
 		}
 		msg.reply(answer);
 	});
